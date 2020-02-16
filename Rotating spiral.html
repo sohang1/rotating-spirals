@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Spiral</title>
+<style>
+   canvas {border:3px solid red;}
+</style>
+</head>
+<body>
+<center>
+<canvas></canvas>
+<canvas></canvas><br />
+<canvas></canvas>
+<canvas></canvas>
+</center>
+<script src="Scripts\graphics.js"></script>
+<script>
+var canvas = document.querySelectorAll('CANVAS').slice(),
+      ctx = canvas.map(function(c) {c.height = c.width = 400; return c.getContext('2d'); }),
+      x = canvas.map(function(c) {return c.width / 2; }),
+      y = canvas.map(function(c) {return c.height / 2; }),
+      colors = ['red', 'blue', 'green', 'yellow'],
+      ang = 0,
+      opacity = 1,
+      oinc = -0.01;
+ctx[0].strokeStyle = createGradient.apply(null, [ctx[0]].concat(colors))('Linear', 0, 0, 2 * x[0], 0);
+ctx[1].strokeStyle = (function(ctx, x, y) {return createGradient.apply(null, [ctx].concat(colors))('Radial', x, y, 0, x, y, x); }) (ctx[1], x[1], y[1]);
+ctx[2].strokeStyle = (function(ctx, x, y) {return createGradient(ctx, 'green', 'yellow')('Radial', x, y, 0, x, y, x); }) (ctx[2], x[2], y[2]);
+ctx.forEach(function(c) {c.lineWidth = 5; });
+(function(a, b) {a.fillStyle = ctx[0].strokeStyle; a.fillRect(0, 0, b.width, b.height); }) (ctx.pop(), canvas.pop());
+setInterval(function() {
+	ctx.forEach(function(c, i) {draw(c, x[i], y[i]); });
+	canvas.forEach(function(c) {
+		c.style.opacity = opacity += oinc; 
+		if(opacity >= 1 || opacity <= 0) {oinc = -oinc; }
+	}); 
+}, 10);
+
+function drawSpiral(ctx, x, y, n, ax, r, a, b, clock) {
+	ax = + ax || 5;
+	r = + r || ax < 7 ? ax : ax - 2;
+	n = + n || Math.floor(2 * x / (r + ax) - 1);
+	a = + a || 0;
+	b = + b || Math.PI;
+	clock = !!clock;
+	for (var i = 0, j = 0; i < n; i++, r += Math.abs(ax = -ax), clock = !clock) {
+		ctx.beginPath();
+		ctx.arc(x - ax / 2, y, r, a, b, clock);
+		ctx.stroke();
+	}
+}
+
+function draw(ctx, x, y) {
+	ctx.clearRect(0, 0, 2 * x, 2 * y);
+	ctx.translate(x, y);
+	ctx.rotate(ang);
+	ctx.translate(-x, -y);
+	drawSpiral(ctx, x, y);
+	ctx.translate(x, y);
+	ctx.rotate(-ang);
+	ctx.translate(-x, -y);
+	ang += Math.DEGREE;
+	if (ang >= 2 * Math.PI) {
+		ang = 0;
+	}
+}
+</script>
+</body>
+</html>
